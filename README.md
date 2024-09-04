@@ -1,4 +1,5 @@
 # moment
+[![](https://jitpack.io/v/AHHB/moment.svg)](https://jitpack.io/#AHHB/moment)
 
 convert jalali and gregorian date + date utils
 
@@ -19,7 +20,7 @@ and the dependency:
 
 ```xml
 <dependency>
-    <groupId>com.ahhb</groupId>
+    <groupId>com.github.AHHB</groupId>
     <artifactId>moment</artifactId>
     <version>1.0.0</version>
 </dependency>
@@ -29,8 +30,12 @@ and the dependency:
 
 ```java
 allprojects {
-    repositories {
-        maven { url 'https://jitpack.io' }
+    dependencyResolutionManagement {
+        repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+        repositories {
+            mavenCentral()
+            maven { url 'https://jitpack.io' }
+        }
     }
 }
 ```
@@ -39,7 +44,7 @@ and the dependency:
 
 ```java
 dependencies {
-    compile 'com.github.ahhb:moment:1.0.0'
+    implementation 'com.github.AHHB:moment:1.0.0'
 }
 ```
 
