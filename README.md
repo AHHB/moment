@@ -1,12 +1,23 @@
 # moment
 [![](https://jitpack.io/v/AHHB/moment.svg)](https://jitpack.io/#AHHB/moment)
 
-convert jalali and gregorian date + date utils
+A Java library for converting between Jalali, Hijri or Gregorian dates, performing date operations, and formatting dates.
+
+---
+
+## Features
+
+- Convert between Jalali, Hijri or Gregorian calendars.
+- Perform date operations using `java.util.Calendar`.
+- Format dates with customizable patterns.
+- Support for multiple time zones and locales.
+
+---
 
 ## Installation
 
-### To use it in your Maven build add:
-
+### Maven:
+Add the JitPack repository to your `pom.xml`:
 ```xml
 <repositories>
     <repository>
@@ -15,9 +26,7 @@ convert jalali and gregorian date + date utils
     </repository>
 </repositories>
 ```
-
-and the dependency:
-
+Add the dependency:
 ```xml
 <dependency>
     <groupId>com.github.AHHB</groupId>
@@ -26,8 +35,8 @@ and the dependency:
 </dependency>
 ```
 
-### To use it in your Gradle build add:
-
+### Gradle:
+Add the JitPack repository to your `settings.gradle`:
 ```java
 allprojects {
     dependencyResolutionManagement {
@@ -39,90 +48,112 @@ allprojects {
     }
 }
 ```
-
-and the dependency:
-
+Add the dependency:
 ```java
 dependencies {
     implementation 'com.github.AHHB:moment:1.0.0'
 }
 ```
 
-## Document
+---
 
-### definition
-
+## Usage
+Creating a `Moment` Instance
+You can create a `Moment` instance in various ways:
 ```java
 import com.ahhb.Moment;
 import com.ahhb.statics.Locale;
 import com.ahhb.statics.TimeZones;
-
 import java.util.Date;
 
-Moment moment = new Moment(); // now time
-Moment moment = new Moment(TimeZones.Asia_Tehran); // now time and set time zone
+// Current time with default time zone
+Moment moment = new Moment();
+
+// Current time with a specific time zone
+Moment moment = new Moment(TimeZones.Asia_Tehran);
+
+// From epoch time (milliseconds)
 Moment moment = new Moment(1725457652039L);
+
+// From epoch time with a specific time zone
 Moment moment = new Moment(1725457652039L, TimeZones.Asia_Tehran);
+
+// From a Date object
 Moment moment = new Moment(new Date());
+
+// From a Date object with a specific time zone
 Moment moment = new Moment(new Date(), TimeZones.Asia_Tehran);
+
+// From a formatted date string
 Moment moment = new Moment("1403/06/14", "yyyy/MM/dd", Locale.JALALI);
-Moment moment = new Moment("2024-09-04 15:00", "yyyy-MM-dd HH:mm", Locale.GREGORIAN);
+
+// From a formatted date string with a specific time zone
 Moment moment = new Moment("1403/06/14", "yyyy/MM/dd", Locale.JALALI, TimeZones.Asia_Tehran);
 ```
 
-### locale
-
-set result locale (jalali or gregorian)
-
+### Setting Locale
+You can set the locale of the `Moment` instance to either Jalali, Hijri or Gregorian:
 ```java
 import com.ahhb.Moment;
 import com.ahhb.statics.Locale;
 
+// Set locale to Gregorian
 Moment moment = new Moment().locale(Locale.GREGORIAN);
+
+// Set locale to Jalali
 Moment moment = new Moment().locale(Locale.JALALI);
-Moment moment = new Moment().locale(Locale.JALALI, false /*  Default is true. When true, the result of 'format()' is a Persian number. */);
+
+// Set locale to Hijri
+Moment moment = new Moment().locale(Locale.HIJRI);
 ```
 
-### operations
-
-Performing time operations using java.util.Calendar:
-
+### Performing Date Operations
+You can perform operations on the `Moment` instance using `java.util.Calendar`:
 ```java
 import com.ahhb.Moment;
 import com.ahhb.Operation;
 import com.ahhb.statics.Locale;
 import com.ibm.icu.util.Calendar;
 
-Operation moment = new Moment("2024-09-04 15:00", "yyyy-MM-dd HH:mm", Locale.GREGORIAN)
+// Add 5 hours to a Gregorian date and convert to Jalali
+Operation operation = new Moment("2024-09-04 15:00", "yyyy-MM-dd HH:mm", Locale.GREGORIAN)
         .locale(Locale.JALALI)
         .calenderOperation(calendar -> calendar.add(Calendar.HOUR, 5));
 ```
 
-get Date:
-
+### Getting a `Date` Object
+You can retrieve the `Date` object from a `Moment` instance:
 ```java
 import com.ahhb.Moment;
 import com.ahhb.statics.Locale;
-
 import java.util.Date;
 
+// Convert a Jalali date to Gregorian and get the Date object
 Date date = new Moment("1403/06/14", "yyyy/MM/dd", Locale.JALALI)
         .locale(Locale.GREGORIAN)
         .getDate();
-
 ```
 
-formating:
+### Formatting Dates
+Format the date using a custom pattern:
 
 ```java
 import com.ahhb.Moment;
+import com.ahhb.statics.Lang;
 import com.ahhb.statics.Locale;
 import com.ibm.icu.util.Calendar;
 
-String date = new Moment("2024-09-04 15:00", "yyyy-MM-dd HH:mm", Locale.GREGORIAN)
+// Format a Gregorian date, add 5 hours, and convert to Jalali
+String formattedDate = new Moment("2024-09-04 15:00", "yyyy-MM-dd HH:mm", Locale.GREGORIAN)
         .locale(Locale.JALALI)
         .calenderOperation(calendar -> calendar.add(Calendar.HOUR, 5))
         .format("yyyy/MM/dd - HH:mm");
+
+// Format a Gregorian date, add 5 hours, and convert to Jalali (use persian language)
+String formattedDate = new Moment("2024-09-04 15:00", "yyyy-MM-dd HH:mm", Locale.GREGORIAN)
+        .locale(Locale.JALALI)
+        .calenderOperation(calendar -> calendar.add(Calendar.HOUR, 5))
+        .format("yyyy/MM/dd - HH:mm", Lang.PERSIAN);
 ```
 
 ### Pattern Syntax

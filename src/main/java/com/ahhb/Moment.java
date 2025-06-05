@@ -1,6 +1,7 @@
 package com.ahhb;
 
 import com.ahhb.exeption.MomentException;
+import com.ahhb.statics.Lang;
 import com.ahhb.statics.Locale;
 import com.ahhb.statics.TimeZones;
 import com.ibm.icu.text.SimpleDateFormat;
@@ -11,68 +12,55 @@ import com.ibm.icu.util.ULocale;
 import java.text.ParseException;
 import java.util.Date;
 
+/**
+ * The `Moment` class provides functionality to convert dates between Jalali, Hijri, and Gregorian calendars.
+ * It supports various constructors to initialize the date using epoch time, `Date` objects, or formatted strings.
+ * The class also allows setting the locale and time zone for date operations.
+ */
 public class Moment {
-    private Calendar calendar;
-    private Locale theLocale;
-    private String jalaliLang = "fa_IR";
+    private Calendar calendar; // Calendar instance to hold the date
+    private Locale theLocale; // Locale of the date, can be JALALI, GREGORIAN, or HIJRI
+    private Lang lang = Lang.ENGLISH; // Language for output formatting, default is English
 
     private static final String GREGORIAN_LOCALE_ID = "GREGORIAN@calendar=gregorian";
     private static final String JALALI_LOCALE_ID = "JALALI@calendar=persian";
+    private static final String HIJRI_LOCALE_ID = "HIJRI@calendar=islamic-civil";
 
-    private void gregorianToJalali (int year, int month, int day) {
-        ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
+    /**
+     * Initializes the calendar with the specified locale, date, and time zone.
+     * @param locale The locale of the date (JALALI, GREGORIAN, or HIJRI).
+     * @param date The date to be set in the calendar.
+     * @param timeZone The time zone to be used for the calendar.
+     */
+    protected void initialCalender(Locale locale, Date date, TimeZones timeZone) {
+        ULocale uLocale = switch (locale) {
+            case JALALI -> new ULocale(JALALI_LOCALE_ID);
+            case GREGORIAN -> new ULocale(GREGORIAN_LOCALE_ID);
+            case HIJRI -> new ULocale(HIJRI_LOCALE_ID);
+        };
 
-        Calendar gregorianCalendar = Calendar.getInstance(gregorianLocale);
-        gregorianCalendar.setLenient(false);
-        gregorianCalendar.clear();
-        gregorianCalendar.setTimeZone(TimeZone.getDefault());
-        gregorianCalendar.set(year, month, day);
-
-        this.calendar = gregorianCalendar;
-    }
-
-    private void jalaliToGregorian(int year, int month, int day) {
-        ULocale persianLocale = new ULocale(this.jalaliLang + "@calendar=persian");
-
-        Calendar persianCal = Calendar.getInstance(persianLocale);
-        persianCal.clear();
-        persianCal.setTimeZone(TimeZone.getDefault());
-        persianCal.set(year, month, day);
-
-        this.calendar = persianCal;
+        this.calendar = Calendar.getInstance(uLocale);
+        this.calendar.setLenient(false);
+        this.calendar.clear();
+        this.calendar.setTimeZone(timeZone != null ? TimeZone.getTimeZone(timeZone.asString()) : TimeZone.getDefault());
+        this.calendar.setTime(date);
     }
 
     /**
      * date converter
-     * get current time and default time zone
+     * get current time and set default time zone
      */
     public Moment(){
-        ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-
-        Calendar gregorianCalendar = Calendar.getInstance(gregorianLocale);
-        gregorianCalendar.setLenient(false);
-        gregorianCalendar.clear();
-        gregorianCalendar.setTimeZone(TimeZone.getDefault());
-        gregorianCalendar.setTime(new Date());
-
-        this.calendar = gregorianCalendar;
+        initialCalender(Locale.GREGORIAN, new Date(), null);
     }
 
     /**
      * date converter
-     * get current time
-     * @param timeZone
+     * get current time and time zone
+     * @param timeZone The time zone to be used.
      */
     public Moment(TimeZones timeZone){
-        ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-
-        Calendar gregorianCalendar = Calendar.getInstance(gregorianLocale);
-        gregorianCalendar.setLenient(false);
-        gregorianCalendar.clear();
-        gregorianCalendar.setTimeZone(TimeZone.getTimeZone(timeZone.asString()));
-        gregorianCalendar.setTime(new Date());
-
-        this.calendar = gregorianCalendar;
+        initialCalender(Locale.GREGORIAN, new Date(), timeZone);
     }
 
     /**
@@ -81,33 +69,17 @@ public class Moment {
      * @param date for examole 1716195081761
      */
     public Moment(long date){
-        ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-
-        Calendar gregorianCalendar = Calendar.getInstance(gregorianLocale);
-        gregorianCalendar.setLenient(false);
-        gregorianCalendar.clear();
-        gregorianCalendar.setTimeZone(TimeZone.getDefault());
-        gregorianCalendar.setTime(new Date(date));
-
-        this.calendar = gregorianCalendar;
+        initialCalender(Locale.GREGORIAN, new Date(date), null);
     }
 
     /**
      * date converter
      * get epoch time and time zone
      * @param date for examole 1716195081761
-     * @param timeZone
+     * @param timeZone The time zone to be used.
      */
     public Moment(long date, TimeZones timeZone){
-        ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-
-        Calendar gregorianCalendar = Calendar.getInstance(gregorianLocale);
-        gregorianCalendar.setLenient(false);
-        gregorianCalendar.clear();
-        gregorianCalendar.setTimeZone(TimeZone.getTimeZone(timeZone.asString()));
-        gregorianCalendar.setTime(new Date(date));
-
-        this.calendar = gregorianCalendar;
+        initialCalender(Locale.GREGORIAN, new Date(date), timeZone);
     }
 
     /**
@@ -116,33 +88,17 @@ public class Moment {
      * @param date
      */
     public Moment(Date date){
-        ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-
-        Calendar gregorianCalendar = Calendar.getInstance(gregorianLocale);
-        gregorianCalendar.setLenient(false);
-        gregorianCalendar.clear();
-        gregorianCalendar.setTimeZone(TimeZone.getDefault());
-        gregorianCalendar.setTime(date);
-
-        this.calendar = gregorianCalendar;
+        initialCalender(Locale.GREGORIAN, date, null);
     }
 
     /**
      * date converter
      * get instance of date and time zone
      * @param date
-     * @param timeZone
+     * @param timeZone The time zone to be used.
      */
     public Moment(Date date, TimeZones timeZone){
-        ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-
-        Calendar gregorianCalendar = Calendar.getInstance(gregorianLocale);
-        gregorianCalendar.setLenient(false);
-        gregorianCalendar.clear();
-        gregorianCalendar.setTimeZone(TimeZone.getTimeZone(timeZone.asString()));
-        gregorianCalendar.setTime(date);
-
-        this.calendar = gregorianCalendar;
+        initialCalender(Locale.GREGORIAN, date, timeZone);
     }
 
     /**
@@ -157,31 +113,17 @@ public class Moment {
             throw new MomentException("input incorrect in moment method");
         }
         try {
-            ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-            ULocale persianLocale = new ULocale(JALALI_LOCALE_ID);
-            format = format.replace("YYYY", "yyyy");
-
             if (locale == Locale.GREGORIAN){
-                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, gregorianLocale);
-
-                Calendar cal = Calendar.getInstance(gregorianLocale);
-                cal.setLenient(false);
-                cal.clear();
-                cal.setTimeZone(TimeZone.getDefault());
-                cal.setTime(df.parse(date));
-
-                this.gregorianToJalali(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-            }else {
-
-                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, persianLocale);
-
-                Calendar cal = Calendar.getInstance(persianLocale);
-                cal.setLenient(false);
-                cal.clear();
-                cal.setTimeZone(TimeZone.getDefault());
-                cal.setTime(df.parse(date));
-
-                this.jalaliToGregorian(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, new ULocale(GREGORIAN_LOCALE_ID));
+                initialCalender(Locale.GREGORIAN, df.parse(date), null);
+            }else if (locale == Locale.JALALI){
+                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, new ULocale(JALALI_LOCALE_ID));
+                initialCalender(Locale.JALALI, df.parse(date), null);
+            } else if (locale == Locale.HIJRI) {
+                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, new ULocale(HIJRI_LOCALE_ID));
+                initialCalender(Locale.HIJRI, df.parse(date), null);
+            } else {
+                throw new MomentException("locale not supported");
             }
         }catch (ParseException e){
             throw new MomentException("cant parse date") ;
@@ -194,38 +136,24 @@ public class Moment {
      * @param date for example 1403/02/31
      * @param format for example yyyy-MM-dd
      * @param locale locale of input date
-     * @param timeZone
+     * @param timeZone The time zone to be used.
      */
     public Moment(String date, String format, Locale locale, TimeZones timeZone) throws MomentException{
         if (date == null || date.isEmpty() || format == null || format.isEmpty()){
             throw new MomentException("input incorrect in moment method");
         }
         try {
-            ULocale gregorianLocale = new ULocale(GREGORIAN_LOCALE_ID);
-            ULocale persianLocale = new ULocale(JALALI_LOCALE_ID);
-            format = format.replace("YYYY", "yyyy");
-
             if (locale == Locale.GREGORIAN){
-                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, gregorianLocale);
-
-                Calendar cal = Calendar.getInstance(gregorianLocale);
-                cal.setLenient(false);
-                cal.clear();
-                cal.setTimeZone(TimeZone.getTimeZone(timeZone.asString()));
-                cal.setTime(df.parse(date));
-
-                this.gregorianToJalali(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-            }else {
-
-                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, persianLocale);
-
-                Calendar cal = Calendar.getInstance(persianLocale);
-                cal.setLenient(false);
-                cal.clear();
-                cal.setTimeZone(TimeZone.getTimeZone(timeZone.asString()));
-                cal.setTime(df.parse(date));
-
-                this.jalaliToGregorian(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, new ULocale(GREGORIAN_LOCALE_ID));
+                initialCalender(Locale.GREGORIAN, df.parse(date), timeZone);
+            }else if (locale == Locale.JALALI){
+                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, new ULocale(JALALI_LOCALE_ID));
+                initialCalender(Locale.JALALI, df.parse(date), timeZone);
+            } else if (locale == Locale.HIJRI) {
+                com.ibm.icu.text.SimpleDateFormat df = new SimpleDateFormat(format, new ULocale(HIJRI_LOCALE_ID));
+                initialCalender(Locale.HIJRI, df.parse(date), timeZone);
+            } else {
+                throw new MomentException("locale not supported");
             }
         }catch (ParseException e){
             throw new MomentException("cant parse date") ;
@@ -233,24 +161,25 @@ public class Moment {
     }
 
     /**
-     * set result date local
+     * set result date locale
      * @param locale
      * @return
      */
     public Operation locale(Locale locale){
         this.theLocale = locale;
-        return new Operation(this.calendar, this.theLocale, this.jalaliLang);
+        return new Operation(this.calendar, this.theLocale, this.lang);
     }
 
     /**
-     * set result date local
+     * set result date locale
      * @param locale
      * @param persianLang if local is JALALI and persianLang is true then result number and word is persian
      * @return
      */
+    @Deprecated(since = "1.1.0")
     public Operation locale(Locale locale, boolean persianLang){
         this.theLocale = locale;
-        this.jalaliLang = persianLang ? "fa_IR" : "";
-        return new Operation(this.calendar, this.theLocale, this.jalaliLang);
+        this.lang = persianLang ? Lang.PERSIAN : Lang.ENGLISH;
+        return new Operation(this.calendar, this.theLocale, this.lang);
     }
 }

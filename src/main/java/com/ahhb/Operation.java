@@ -1,5 +1,6 @@
 package com.ahhb;
 
+import com.ahhb.statics.Lang;
 import com.ahhb.statics.Locale;
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
@@ -10,12 +11,12 @@ import java.util.Date;
 public class Operation {
     private final Calendar calendar;
     private final Locale thrLocale;
-    private String jalaliLang = "JALALI";
+    private Lang lang;
 
-    public Operation(Calendar calendar, Locale thrLocale, String jalaliLang) {
+    public Operation(Calendar calendar, Locale thrLocale, Lang lang) {
         this.calendar = calendar;
         this.thrLocale = thrLocale;
-        this.jalaliLang = jalaliLang;
+        this.lang = lang;
     }
 
     /**
@@ -24,15 +25,32 @@ public class Operation {
      * @return
      */
     public String format(String format){
-        if (this.thrLocale == Locale.JALALI){
-            ULocale persianLocale = new ULocale(this.jalaliLang + "@calendar=persian");
-            SimpleDateFormat df = new SimpleDateFormat (format, persianLocale );
-            return df.format(this.calendar.getTime());
-        }else {
-            ULocale gregorianLocale = new ULocale("GREGORIAN@calendar=gregorian");
-            SimpleDateFormat df = new SimpleDateFormat (format, gregorianLocale);
-            return df.format(calendar.getTime());
-        }
+        ULocale locale = switch (this.thrLocale) {
+            case JALALI -> new ULocale(this.lang.getLocale() + "@calendar=persian");
+            case GREGORIAN -> new ULocale("GREGORIAN@calendar=gregorian");
+            case HIJRI -> new ULocale(this.lang.getLocale() + "@calendar=islamic-civil");
+        };
+
+        SimpleDateFormat df = new SimpleDateFormat (format, locale);
+        return df.format(this.calendar.getTime());
+    }
+
+    /**
+     * get result date string formatted
+     * @param format for examole yyyy/MM/dd
+     * @param lang select output language
+     * @return
+     */
+    public String format(String format, Lang lang){
+        this.lang = lang;
+        ULocale locale = switch (this.thrLocale) {
+            case JALALI -> new ULocale(this.lang.getLocale() + "@calendar=persian");
+            case GREGORIAN -> new ULocale("GREGORIAN@calendar=gregorian");
+            case HIJRI -> new ULocale(this.lang.getLocale() + "@calendar=islamic-civil");
+        };
+
+        SimpleDateFormat df = new SimpleDateFormat (format, locale);
+        return df.format(this.calendar.getTime());
     }
 
     /**
